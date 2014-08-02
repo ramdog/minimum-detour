@@ -4,25 +4,20 @@
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
     <meta charset="utf-8">
     <title>Waypoints in directions</title>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
     <style>
-      
-      html, body, #map-canvas {
-        height: 100%;
-        padding: 0px;
-        font-family: Helvetica
-      }
-      
-      #panel {
-        position: absolute;
-        margin: 0px;
-        top: 5px;
-        left: 50%;
-        margin-left: -180px;
-        z-index: 5;
-        background-color: #fff;
-        padding: 5px;
-        border: 1px solid #999;
-      }
+  
+    #map-outer, #map-canvas {
+      height: 600px;
+      margin-bottom: 10px;
+    }
+
+    #map-canvas {
+      width: 100%;
+      border: 2px solid lightgrey;
+      border-radius: 3px;
+    }
+
     </style>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCjNHrHj7laGpX0Mz1RIUClrGddYemBHCs"></script>
     <script>
@@ -81,7 +76,7 @@
 
       var displayInvalidLocation = function(status) {
         var summaryPanel = document.getElementById('directions_panel');
-        summaryPanel.innerHTML = '<p>Please choose valid lat/lng pairs on the map</p>';
+        summaryPanel.innerHTML = '<div class="text-danger"><p>Please choose valid lat/lng pairs map</p></div>';
         // summaryPanel.innerHTML += '<p>' + status + '</p>';
       };
 
@@ -89,19 +84,18 @@
         directionsDisplay.setDirections(response);
         var route = response.routes[0];
         var summaryPanel = document.getElementById('directions_panel');
-        summaryPanel.innerHTML = '';
         // For each route, display summary information.
-        summaryPanel.innerHTML += '<b>' + driver + ' drives</b><br>'; 
-        summaryPanel.innerHTML += '<b>Optimal: ' + 
-          (distance1 * 0.000621371).toFixed(2) + ' miles </b><br>';
-        summaryPanel.innerHTML += '<b>Sub-Optimal: ' + 
-          (distance2 * 0.000621371).toFixed(2) + ' miles </b><br><br>';
+        summaryPanel.innerHTML += '<h5 class="text-success">' + driver + ' should drive</h5>'; 
+        summaryPanel.innerHTML += '<b>Optimal Route: </b><span>' + 
+          (distance1 * 0.000621371).toFixed(2) + ' miles </span><br>';
+        summaryPanel.innerHTML += '<b>Route with other driver: </b><span>' + 
+          (distance2 * 0.000621371).toFixed(2) + ' miles </span><br><br>';
         for (var i = 0; i < route.legs.length; i++) {
           var routeSegment = i + 1;
           summaryPanel.innerHTML += '<b>Route Segment: ' + routeSegment + '</b><br>';
           summaryPanel.innerHTML += route.legs[i].start_address + ' to ';
           summaryPanel.innerHTML += route.legs[i].end_address + '<br>';
-          summaryPanel.innerHTML += route.legs[i].distance.text + '<br><br>';
+          summaryPanel.innerHTML += route.legs[i].distance.text + '<br>';
         }
       };
 
@@ -157,32 +151,86 @@
     </script>
   </head>
   <body>
-    <h1>Detour Minimizer</h1>
-    <p>Driver1 is going from A to B and Driver2 is going from C to D - who should drive to minimize the total distance?</p>
-    <div id="map-canvas" style="float:left;width:70%;height:100%;"></div>
-    
-      <div id="control_panel" style="float:right;width:30%;text-align:left;padding-top:20px">
-        <div style="margin:20px;border-width:2px;">
-          <b>Driver1</b>
-          <br>
-          Origin:
-          <input id="origin-1-lat" type="number" value="37.776969" placeholder="lat">
-          <input id="origin-1-lng" type="number" value="-122.445840" placeholder="lng">
-          Destination:
-          <input id="dest-1-lat" type="number" value="37.711474" placeholder="lat">
-          <input id="dest-1-lng" type="number" value="-122.407001" placeholder="lng">
-          <b>Driver2</b>
-          <br>
-          Origin:
-          <input id="origin-2-lat" type="number" value="37.767675" placeholder="lat">
-          <input id="origin-2-lng" type="number" value="-122.421078" placeholder="lng">
-          Destination:
-          <input id="dest-2-lat" type="number" value="37.742702" placeholder="lat">
-          <input id="dest-2-lng" type="number" value="-122.414898" placeholder="lng">
-          <br>
-          <input type="submit" onclick="getRoutes();" value="Best Route">
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12">
+          <h1>Detour Minimizer</h1>
+          <p class="text-muted">Two potential drivers starting and ending in different places - who should drive to minimize the total distance?</p>
         </div>
-      <div id="directions_panel" style="margin:20px;"></div>
       </div>
+      <div class="row">
+        <div id="map-outer" class="col-md-8">
+          <div id="map-canvas"></div>
+        </div>
+        <div class="col-md-4">
+
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h4 class="panel-title">Inputs</h4>
+            </div>
+            <div class="panel-body">
+              <form class="form-horizontal" onsubmit="getRoutes(); return false;" novalidate>
+                <h5 class="text-muted">Driver1:</h5>
+                <div class="form-group form-group-sm">
+                  <label class="col-sm-2 control-label">Origin</label>
+                  <div class="col-sm-5">
+                    <input class="form-control" id="origin-1-lat" type="number" value="37.776969" placeholder="lat">
+                  </div>
+                  <div class="col-sm-5">
+                    <input class="form-control" id="origin-1-lng" type="number" value="-122.445840" placeholder="lng">
+                  </div>
+                </div>
+
+                <div class="form-group form-group-sm">
+                  <label class="col-sm-2 control-label">Dest</label>
+                  <div class="col-sm-5">
+                    <input class="form-control" id="dest-1-lat" type="number" value="37.711474" placeholder="lat">
+                  </div>
+                  <div class="col-sm-5">
+                    <input class="form-control" id="dest-1-lng" type="number" value="-122.407001" placeholder="lng">
+                  </div>
+                </div>
+                
+                <h5 class="text-muted">Driver2:</h5>
+                <div class="form-group form-group-sm">
+                  <label class="col-sm-2 control-label">Origin</label>
+                  <div class="col-sm-5">
+                    <input class="form-control" id="origin-2-lat" type="number" value="37.767675" placeholder="lat">
+                  </div>
+                  <div class="col-sm-5">
+                    <input class="form-control" id="origin-2-lng" type="number" value="-122.421078" placeholder="lng">
+                  </div>
+                </div>
+
+                <div class="form-group form-group-sm">
+                  <label class="col-sm-2 control-label">Dest</label>
+                  <div class="col-sm-5">
+                    <input class="form-control" id="dest-2-lat" type="number" value="37.742702" placeholder="lat">
+                  </div>
+                  <div class="col-sm-5">
+                    <input class="form-control" id="dest-2-lng" type="number" value="-122.414898" placeholder="lng">
+                  </div>
+                </div>
+                
+                <div class="form-group form-group-sm">
+                  <div class="col-sm-offset-2 col-sm-10">
+                    <input class="btn btn-primary" type="submit" value="Calculate Best Route">
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+          
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h4 class="panel-title">Results</h4>
+            </div>
+            <div class="panel-body">
+              <div id="directions_panel"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
