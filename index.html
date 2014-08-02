@@ -85,6 +85,7 @@
         var route = response.routes[0];
         var summaryPanel = document.getElementById('directions_panel');
         // For each route, display summary information.
+        summaryPanel.innerHTML = ''; 
         summaryPanel.innerHTML += '<h5 class="text-success">' + driver + ' should drive</h5>'; 
         summaryPanel.innerHTML += '<b>Optimal Route: </b><span>' + 
           (distance1 * 0.000621371).toFixed(2) + ' miles </span><br>';
